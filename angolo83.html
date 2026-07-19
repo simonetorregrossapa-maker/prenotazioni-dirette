@@ -227,6 +227,91 @@ body{
 
 body.is-admin .brandbar, body.is-admin .livepill{opacity:0;pointer-events:none}
 .brandbar,.livepill{transition:opacity .45s ease}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOBILE — il lead lo apre dal telefono: ogni scena si impagina in verticale.
+   Lo stage smette di essere fisso, la pagina può scorrere, niente taglio.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width:768px){
+  html,body{height:auto}
+  body{overflow-x:hidden;overflow-y:auto}
+
+  /* stage: da riquadro fisso a colonna che scorre */
+  .stage-wrap{position:static;inset:auto;display:block;height:auto;min-height:100vh;padding:74px 15px 132px}
+  .stage{width:100%;height:auto;perspective:none}
+  .scene{position:relative;inset:auto;height:auto;min-height:calc(100vh - 206px);
+    justify-content:center;transition:opacity .45s ease}
+
+  /* header compatto, la livepill è solo rumore su schermo piccolo */
+  .brandbar{top:14px;left:15px;gap:10px}
+  .brandmark{width:38px;height:38px;font-size:1rem}
+  .brandbar .n{font-size:1.08rem}
+  .brandbar .s{font-size:.52rem;letter-spacing:.22em}
+  .livepill{display:none}
+
+  /* cover */
+  .cover h1{font-size:clamp(1.9rem,8.4vw,2.7rem);max-width:15ch}
+  .cover .eyebrow{margin-bottom:16px;font-size:.62rem}
+  .cover .sub{font-size:.95rem;margin-top:18px}
+  .cover .hint{margin-top:30px}
+
+  /* scena automazione: testo sopra, telefono sotto, centrati */
+  .auto{flex-direction:column;gap:26px;align-items:center;text-align:center}
+  .auto .left{flex:none;width:100%}
+  .auto .kicker{justify-content:center}
+  .auto h2{font-size:clamp(1.6rem,6.6vw,2.2rem)}
+  .trigger{margin:14px auto 16px}
+  .benefit{margin:8px auto 0;max-width:40ch;text-align:left}
+  .chips{justify-content:center;margin-top:20px}
+  .route{margin:18px auto 0}
+  .phone{width:min(290px,82vw);height:auto;aspect-ratio:320/560;padding:14px}
+  .phone::before{width:104px;height:22px}
+
+  /* scena pannello: il frame browser si adatta e va in colonna */
+  .admin{align-items:stretch}
+  .browser{height:auto;max-height:none}
+  .btop{padding:10px 12px}
+  .burl{margin-left:8px;padding:6px 10px;font-size:.62rem}
+  .demo-flag{font-size:.5rem;padding:4px 8px;letter-spacing:.1em}
+  .badmin{padding:20px 16px}
+  .badmin h3{font-size:1.5rem;margin-bottom:16px}
+  .statrow{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+  .statcard{padding:13px 14px}
+  .statcard .v{font-size:1.55rem}
+  .cols{grid-template-columns:1fr;gap:22px}
+  .recovered .v{font-size:1.7rem}
+
+  /* confronto Booking vs diretto */
+  .compare .sub{font-size:.95rem;margin-bottom:22px}
+  .cmp{grid-template-columns:1fr;gap:16px}
+  .cmp .card{padding:22px 20px}
+  .cmp .big{font-size:2.2rem}
+
+  /* recap: due card per riga */
+  .recap h2{font-size:clamp(1.8rem,7vw,2.4rem)}
+  .recap .sub{font-size:.95rem;margin-bottom:26px}
+  .grid{gap:10px}
+  .gcard{flex:1 1 calc(50% - 10px);padding:16px 14px}
+  .tagline{margin-top:28px;font-size:1.3rem;line-height:1.35}
+
+  /* controlli: barra stretta che entra nello schermo */
+  .controls{gap:7px;padding:8px 12px;max-width:calc(100vw - 24px)}
+  .ctrl-btn{width:34px;height:34px}
+  .progress{width:64px}
+  .counter{min-width:32px;font-size:.6rem}
+  .dots{bottom:74px;padding:7px 10px}
+  .dots i.on{width:18px}
+}
+
+/* schermi molto stretti (≤360px): ancora un filo più compatto */
+@media (max-width:360px){
+  .phone{width:min(260px,88vw)}
+  .statrow{gap:8px}
+  .gcard{flex:1 1 100%}
+  .progress{width:48px}
+}
+
 </style>
 </head>
 <body>
@@ -516,6 +601,7 @@ function render(i){
 function go(i){
   cur=(i+scenes.length)%scenes.length;
   render(cur);
+  if(window.innerWidth<=768){ try{window.scrollTo(0,0)}catch(e){} }
   dotEls.forEach((d,k)=>d.classList.toggle('on',k===cur));
   document.getElementById('counter').textContent=`${cur+1} / ${scenes.length}`;
   if(playing) startTimer();
