@@ -228,7 +228,6 @@ body{
 body.is-admin .brandbar, body.is-admin .livepill{opacity:0;pointer-events:none}
 .brandbar,.livepill{transition:opacity .45s ease}
 
-
 /* ══════════════════════════════════════════════════════════════════════
    MOBILE — il lead lo apre dal telefono: ogni scena si impagina in verticale.
    Lo stage smette di essere fisso, la pagina può scorrere, niente taglio.
@@ -311,7 +310,6 @@ body.is-admin .brandbar, body.is-admin .livepill{opacity:0;pointer-events:none}
   .gcard{flex:1 1 100%}
   .progress{width:48px}
 }
-
 </style>
 </head>
 <body>
@@ -352,6 +350,13 @@ const BRAND = {
   citta: "Palermo",
   ospite: "Marco",                 // nome ospite fittizio mostrato nelle scene
   camera: "Camera Matrimoniale",   // una camera plausibile del lead
+  // ── numeri REALI del lead (dal CRM) per la scena confronto ──
+  // stimaAnnua = stima PRUDENTE di quanto lascia a Booking in un anno,
+  // derivata dal volume: camere × ~prezzoNotte × occup.~45% × quota OTA ~70% × commissione ~15%,
+  // arrotondata per DIFETTO. Marcata "stima" a schermo. NON è il prezzo del servizio (349+10% resta fuori).
+  camere: 3,                       // dimora storica, ~3 camere
+  prezzoNotte: 90,                 // €/notte medio
+  stimaAnnua: 4000,                // ~4.000€/anno a Booking (stima prudente)
   // URL REALE del demo che il lead riceve (compare nella barra del pannello).
   // NON un dominio inventato: quello che vede è quello che gli si apre.
   sito: "sulleviedelcapo.it"
@@ -528,17 +533,20 @@ function adminDashboard(){
 
 /* ── confronto Booking vs diretto ─────────────────────────────────── */
 function compareHTML(){
-  return `<h2 class="serif">La stessa prenotazione, <span class="italic">due conti diversi</span></h2>
-    <div class="sub">Su una prenotazione da 500€, ogni volta:</div>
+  const pn = BRAND.prezzoNotte, cam = BRAND.camere, stima = BRAND.stimaAnnua;
+  const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');   // separatore migliaia (garantito, no dipendenza locale)
+  const soggEx = pn*3, lossEx = Math.round(soggEx*0.20);   // esempio: 3 notti al tuo prezzo, fino al 20% a Booking
+  return `<h2 class="serif">Ogni anno una parte del tuo incasso <span class="italic">resta a Booking</span></h2>
+    <div class="sub">Sulle tue ${cam} camere a circa ${pn}€ a notte, la stima è di circa <b>${fmt(stima)}€ l’anno</b> di commissioni. Ecco lo stesso soggiorno, due conti diversi.</div>
     <div class="cmp">
       <div class="card b">
         <h4>Con Booking</h4>
-        <div class="big">−100€</div>
-        <div class="cap">fino al 20% su ogni prenotazione, per sempre</div>
+        <div class="big">−${fmt(stima)}€<span style="font-size:1.1rem;color:var(--muted);font-family:var(--font-title);"> / anno</span></div>
+        <div class="cap">stima prudente sul tuo volume · fino al 20% su ogni prenotazione</div>
         <ul>
+          <li>${I.xred}<div>Un soggiorno da ${soggEx}€ (3 notti) lascia fino a −${lossEx}€, ogni volta</div></li>
           <li>${I.xred}<div>Paghi la commissione anche sui clienti che tornano</div></li>
           <li>${I.xred}<div>Il cliente è di Booking, non tuo</div></li>
-          <li>${I.xred}<div>Ti mostrano accanto i concorrenti</div></li>
         </ul>
       </div>
       <div class="card m">
@@ -548,7 +556,7 @@ function compareHTML(){
         <ul>
           <li>${I.goldcheck}<div>Le prenotazioni dirette non pagano percentuali a nessuno</div></li>
           <li>${I.goldcheck}<div>Il cliente torna da te, non da Booking</div></li>
-          <li>${I.goldcheck}<div>Ti costruisci un canale di prenotazioni tuo, per sempre</div></li>
+          <li>${I.goldcheck}<div>Un canale di prenotazioni tuo, che resta tuo</div></li>
         </ul>
       </div>
     </div>`;
@@ -578,10 +586,10 @@ scenes.push({ cls:'cover', dur:4600, html:()=>`
   <h1 class="serif">Le prenotazioni che oggi lasci a Booking, prese in <span class="italic">diretta</span></h1>
   <div class="sub">Dietro il tuo sito, un sistema si occupa di prenotazioni, conferme, calendario e ospiti che tornano. Guardalo lavorare, una tappa alla volta.</div>
   <div class="hint">— gira tutto da solo —</div>`});
+scenes.push({ cls:'compare', dur:7500, html:compareHTML });   /* il gancio economico subito dopo la cover: ferisce prima delle 7 automazioni (la soluzione) */
 AUTO.forEach((a,i)=>scenes.push({ cls:'auto', dur:6200, html:()=>autoSceneHTML(a,i) }));
 scenes.push({ cls:'admin', dur:7000, html:adminGestione });
 scenes.push({ cls:'admin', dur:7000, html:adminDashboard });
-scenes.push({ cls:'compare', dur:7500, html:compareHTML });
 scenes.push({ cls:'recap', dur:7000, html:recapHTML });
 
 /* ── player ───────────────────────────────────────────────────────── */
